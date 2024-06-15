@@ -2,7 +2,7 @@ enable_testing()
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 file(GLOB_RECURSE TEST_SOURCES test_*.cpp)
-SET(LIBS eigen gtest gtest_main)
+SET(LIBS eigen gtest gtest_main ControlAlgorithms)
 
 foreach(TEST_FILE IN LISTS TEST_SOURCES)
     get_filename_component(TEST_FILE_NAME ${TEST_FILE} NAME_WE)
