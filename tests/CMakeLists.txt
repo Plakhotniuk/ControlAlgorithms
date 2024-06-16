@@ -1,8 +1,9 @@
 enable_testing()
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
-file(GLOB_RECURSE TEST_SOURCES test_*.cpp)
+file(GLOB_RECURSE TEST_SOURCES test_*.cpp Utils.hpp)
 SET(LIBS eigen gtest gtest_main ControlAlgorithms)
+add_definitions(-DPROJECT_DIR_RAW="${PROJECT_SOURCE_DIR}")
 
 foreach(TEST_FILE IN LISTS TEST_SOURCES)
     get_filename_component(TEST_FILE_NAME ${TEST_FILE} NAME_WE)

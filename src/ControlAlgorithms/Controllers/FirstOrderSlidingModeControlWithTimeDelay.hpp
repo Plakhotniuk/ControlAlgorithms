@@ -14,11 +14,19 @@ namespace ControlAlgorithms::Controllers {
     class FirstOrderSMCTimeDelay {
         MatrixNd<N> lambdaMatrix_;
         MatrixNd<N> KMatrix_;
+        double phi_;
 
     public:
-        explicit FirstOrderSMCTimeDelay(const VectorNd<N> &lambdaVec, const VectorNd<N> &KVec) : lambdaMatrix_(
-                lambdaVec.matrix().asDiagonal()), KMatrix_(KVec.matrix().asDiagonal()) {};
+        explicit FirstOrderSMCTimeDelay(const MatrixNd<N> &lambdaMatrix, const MatrixNd<N> &kMatrix, const double phi)
+                : lambdaMatrix_(
+                lambdaMatrix), KMatrix_(kMatrix), phi_(phi) {};
 
+        /** Check reaching sliding surface condition
+         *
+         * @param S
+         * @param K
+         * @return
+         */
         [[nodiscard]] bool reachingConditionCheck(const VectorNd<N> &S, const MatrixNd<N> &K) const;
 
         [[nodiscard]] VectorNd<N> chatteringAvoidance(const VectorNd<N> &S, const double phi) const;
@@ -31,21 +39,22 @@ namespace ControlAlgorithms::Controllers {
         * @return
         */
         [[nodiscard]] VectorNd<N> createSwitchingFunction(const VectorNd<N> &trackingPositionError,
-                                                       const VectorNd<N> &trackingVelocityError) const;
+                                                          const VectorNd<N> &trackingVelocityError) const;
 
         /** Control calculation
          *
-         * @param params
+         * @param gConstDiagInv
+         * @param h
          * @param desiredTrajectoryVelocity
          * @param trackingPositionError
          * @param trackingVelocityError
-         * @param lambdaDiagMatrix
-         * @param K
+         * @param phi
          * @return
          */
-        [[nodiscard]] VectorNd<N> calculate(const MatrixNd<N> &gConstDiagInv, const VectorNd<N> &h,
-                                         const VectorNd<N> &desiredTrajectoryVelocity, const VectorNd<N> &trackingPositionError,
-                                         const VectorNd<N> &trackingVelocityError, const double phi);
+        [[nodiscard]] VectorNd<N> computeControl(const MatrixNd<N> &gConstDiagInv, const VectorNd<N> &h,
+                                                 const VectorNd<N> &desiredTrajectoryVelocity,
+                                                 const VectorNd<N> &trackingPositionError,
+                                                 const VectorNd<N> &trackingVelocityError) const;
     };
 
 }// namespace ControlAlgorithms::Controllers
