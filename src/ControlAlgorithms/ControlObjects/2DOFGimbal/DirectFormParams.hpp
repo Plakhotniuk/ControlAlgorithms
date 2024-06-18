@@ -2,8 +2,7 @@
 // Created by Арсений Плахотнюк on 16.06.2024.
 //
 
-#ifndef CONTROLALGORITHMS_DIRECTFORMPARAMS_HPP
-#define CONTROLALGORITHMS_DIRECTFORMPARAMS_HPP
+#pragma once
 
 #include "ControlAlgorithms/Utils/BasicTypes.hpp"
 
@@ -12,12 +11,28 @@ namespace ControlAlgorithms::ControlObjects::TwoDOFGimbal {
     /**
      * System state: state vector, desired state vector, time
      */
-    struct State {
-        Vector4d x;//!< state vector [x0 = theta, x1 = ksi, x2 = theta', x3 = ksi']
-        Vector4d xd;//!< state vector [xd0 = theta, xd1 = ksi, xd2 = theta', xd3 = ksi']
+//    struct State {
+//        Vector4d x;//!< state vector [x0 = theta, x1 = ksi, x2 = theta', x3 = ksi']
+//        Vector4d xd;//!< state vector [xd0 = theta, xd1 = ksi, xd2 = theta', xd3 = ksi']
+//
+//        State& operator=(const State &other)=default;
+//    };
 
-        State& operator=(const State &other)=default;
+    typedef Vector8d State;
+
+    struct push_back_state_and_time {
+        std::vector<State> &m_states;
+        std::vector<double> &m_times;
+
+        push_back_state_and_time(std::vector<State> &states, std::vector<double> &times)
+                : m_states(states), m_times(times) {}
+
+        void operator()(const State &x, double t) {
+            m_states.push_back(x);
+            m_times.push_back(t);
+        }
     };
+
 
     /**
      * Parameters for integration
@@ -66,9 +81,7 @@ namespace ControlAlgorithms::ControlObjects::TwoDOFGimbal {
          */
         [[nodiscard]] Vector2d frictionForceVector(const Vector2d &velocityVec) const noexcept;
 
-        [[nodiscard]] Matrix2d getConstDiagMatrixG()const noexcept{return gConstDiag_;}
+        [[nodiscard]] Matrix2d getConstDiagMatrixG() const noexcept { return gConstDiag_; }
     };
 
 }
-
-#endif //CONTROLALGORITHMS_DIRECTFORMPARAMS_HPP

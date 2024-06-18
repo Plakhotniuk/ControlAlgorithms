@@ -2,10 +2,10 @@
 // Created by Арсений Плахотнюк on 15.06.2024.
 //
 
-#ifndef CONTROLALGORITHMS_BASICTYPES_HPP
-#define CONTROLALGORITHMS_BASICTYPES_HPP
+#pragma once
 
-#include "Eigen/Core"
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 
 namespace ControlAlgorithms {
     using Matrix2d = Eigen::Matrix<double, 2, 2>;// Матрица размера 2 на 2 с типом double
@@ -25,9 +25,9 @@ namespace ControlAlgorithms {
 
     using Vector6d = Eigen::Matrix<double, 6, 1>;// Вектор размера 6 с типом double
 
+    using Vector8d = Eigen::Matrix<double, 8, 1>;// Вектор размера 8 с типом double
+
     template<unsigned N>
     using VectorNd = Eigen::Matrix<double, N, 1>;// Вектор размера N с типом double
 
 }// namespace ControlAlgorithms
-
-#endif//CONTROLALGORITHMS_BASICTYPES_HPP

@@ -2,24 +2,22 @@
 // Created by Арсений Плахотнюк on 15.06.2024.
 //
 
-#ifndef CONTROLALGORITHMS_FIRSTORDERSLIDINGMODECONTROLWITHTIMEDELAY_HPP
-#define CONTROLALGORITHMS_FIRSTORDERSLIDINGMODECONTROLWITHTIMEDELAY_HPP
+#pragma once
 
 #include "ControlAlgorithms/Utils/BasicTypes.hpp"
 #include "ControlAlgorithms/Utils/MathFunctions.hpp"
 
 namespace ControlAlgorithms::Controllers {
-
-    template<unsigned N>
+    
     class FirstOrderSMCTimeDelay {
-        MatrixNd<N> lambdaMatrix_;
-        MatrixNd<N> KMatrix_;
-        VectorNd<N> controlAction_;
+        Matrix2d lambdaMatrix_;
+        Matrix2d KMatrix_;
+        Vector2d controlAction_;
         double phi_;
 
     public:
-        FirstOrderSMCTimeDelay(const MatrixNd<N> &lambdaMatrix, const MatrixNd<N> &kMatrix,
-                               const VectorNd<N> controlAction, const double phi)
+        FirstOrderSMCTimeDelay(const Matrix2d &lambdaMatrix, const Matrix2d &kMatrix,
+                               const Vector2d &controlAction, const double phi)
                 : lambdaMatrix_(lambdaMatrix), KMatrix_(kMatrix), controlAction_(controlAction), phi_(phi) {};
 
         /** Check reaching sliding surface condition
@@ -28,9 +26,9 @@ namespace ControlAlgorithms::Controllers {
          * @param K
          * @return
          */
-        [[nodiscard]] bool reachingConditionCheck(const VectorNd<N> &S, const MatrixNd<N> &K) const;
+        [[nodiscard]] bool reachingConditionCheck(const Vector2d &S, const Matrix2d &K) const;
 
-        [[nodiscard]] VectorNd<N> chatteringAvoidance(const VectorNd<N> &S, const double phi) const;
+        static void chatteringAvoidance(Vector2d &S, const double phi) ;
 
         /** Sliding surface calculation
         *
@@ -39,8 +37,8 @@ namespace ControlAlgorithms::Controllers {
         * @param lambdaDiagMatrix
         * @return
         */
-        [[nodiscard]] VectorNd<N> createSwitchingFunction(const VectorNd<N> &trackingPositionError,
-                                                          const VectorNd<N> &trackingVelocityError) const;
+        [[nodiscard]] Vector2d createSwitchingFunction(const Vector2d &trackingPositionError,
+                                                          const Vector2d &trackingVelocityError) const;
 
         /** Control computation (can be used with unknown disturbance in system state)
          *
@@ -52,15 +50,13 @@ namespace ControlAlgorithms::Controllers {
          * @param currentAcceleration
          * @return
          */
-        void computeControl(const MatrixNd<N> &gConstDiagInv,
-                            const VectorNd<N> &prevAcceleration,
-                            const VectorNd<N> &currentDesiredAcceleration,
-                            const VectorNd<N> &trackingPositionError,
-                            const VectorNd<N> &trackingVelocityError);
+        void computeControl(const Matrix2d &gConstDiagInv,
+                            const Vector2d &prevAcceleration,
+                            const Vector2d &currentDesiredAcceleration,
+                            const Vector2d &trackingPositionError,
+                            const Vector2d &trackingVelocityError);
 
-        [[nodiscard]] VectorNd<N> getControl() const noexcept {return controlAction_;}
+        [[nodiscard]] Vector2d getControl() const noexcept {return controlAction_;}
     };
 
 }// namespace ControlAlgorithms::Controllers
-
-#endif//CONTROLALGORITHMS_FIRSTORDERSLIDINGMODECONTROLWITHTIMEDELAY_HPP

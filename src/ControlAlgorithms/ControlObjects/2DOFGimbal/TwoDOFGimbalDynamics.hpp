@@ -2,8 +2,7 @@
 // Created by Арсений Плахотнюк on 16.06.2024.
 //
 
-#ifndef CONTROLALGORITHMS_TWODOFGIMBALDYNAMICS_HPP
-#define CONTROLALGORITHMS_TWODOFGIMBALDYNAMICS_HPP
+#pragma once
 
 #include "DirectFormParams.hpp"
 
@@ -31,5 +30,3 @@ namespace ControlAlgorithms::ControlObjects::TwoDOFGimbal {
     computeDynamics(const State &stateVector, const Vector2d &controlAction, const DirectFormParams &params);
 
 }
-
-#endif //CONTROLALGORITHMS_TWODOFGIMBALDYNAMICS_HPP
