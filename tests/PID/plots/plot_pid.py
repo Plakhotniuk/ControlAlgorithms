@@ -18,9 +18,8 @@ def plot_data(filepath):
     plt.plot(times, rad_to_ang_sec(np.abs(position - position_des)))
 
 
-plot_data('../data/TwoAxisGimbalSMC.txt')
-# plot_data('../data/TwoAxisGimbalSMC2.txt')
-plt.title('Зависимость ошибки от времени.\n Скользяший режим управления.')
+plot_data('../data/TwoAxisGimbalPID.txt')
+plt.title('Зависимость ошибки от времени.\n ПИД регулятор.')
 plt.ylabel('угол, угловые секунды')
 plt.xlabel('время, секунды')
 plt.yscale('log')

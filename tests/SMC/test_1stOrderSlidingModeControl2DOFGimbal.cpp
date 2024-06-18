@@ -8,7 +8,7 @@
 #include "ControlAlgorithms/ComputeRHS/2DOFGimbalFOSMTDC.hpp"
 
 /**
- *  Тест управления двух осевым поворотным устройством с помощью sliding mode control
+ *  Тест управления двух осевым поворотным устройством с помощью скользящего режима.
  */
 
 using namespace ControlAlgorithms;
@@ -26,12 +26,6 @@ protected:
     // параметры интегрирования
     const double integrationStep = 0.001;
     const double integrTol = 1e-6;
-    const double controlClock = 0.001;
-    const double numOfIter = static_cast<uint>(controlClock / integrationStep);
-
-
-    // Chattering avoidance
-    const double phi = 1;
 
     // System params
     State state{0, 0, 0, 0, 0.5, 0.5, 0, 0};
@@ -45,15 +39,15 @@ protected:
             .gConstDiag_ = Matrix2d{{1, 0},
                                     {0, 1}}};
 
-    // Control
+    //Control params
+    // Chattering avoidance
+    const double phi = 1;
     Vector2d uControl = {0., 0.};                // control input, u
 
     Matrix2d kMatrix = Matrix2d{{95, 0},
                                 {0,  95}};
     Matrix2d lambdaMatrix = Matrix2d{{5, 0},
                                      {0, 5}};
-
-    void SetUp() override {}
 };
 
 TEST_F(ControlTwoAxisGimbalSMCData, TEST_FIXED_STEP) {
