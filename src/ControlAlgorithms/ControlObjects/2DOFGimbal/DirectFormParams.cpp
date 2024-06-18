@@ -4,7 +4,7 @@
 
 #include "DirectFormParams.hpp"
 
-namespace ControlAlgorithms::ControlObjects::Params {
+namespace ControlAlgorithms::ControlObjects::TwoDOFGimbal {
     [[nodiscard]] Matrix2d DirectFormParams::momentOfInertiaMatrix(
             const double &q2) const noexcept {
         return Matrix2d{{J1_ + J2_ * std::cos(q2) * std::cos(q2) + J3_ * std::sin(q2) * std::sin(q2), 0.},

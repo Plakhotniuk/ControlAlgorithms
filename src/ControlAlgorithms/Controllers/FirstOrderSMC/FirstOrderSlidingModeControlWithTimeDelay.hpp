@@ -14,12 +14,13 @@ namespace ControlAlgorithms::Controllers {
     class FirstOrderSMCTimeDelay {
         MatrixNd<N> lambdaMatrix_;
         MatrixNd<N> KMatrix_;
+        VectorNd<N> controlAction_;
         double phi_;
 
     public:
-        explicit FirstOrderSMCTimeDelay(const MatrixNd<N> &lambdaMatrix, const MatrixNd<N> &kMatrix, const double phi)
-                : lambdaMatrix_(
-                lambdaMatrix), KMatrix_(kMatrix), phi_(phi) {};
+        FirstOrderSMCTimeDelay(const MatrixNd<N> &lambdaMatrix, const MatrixNd<N> &kMatrix,
+                               const VectorNd<N> controlAction, const double phi)
+                : lambdaMatrix_(lambdaMatrix), KMatrix_(kMatrix), controlAction_(controlAction), phi_(phi) {};
 
         /** Check reaching sliding surface condition
          *
@@ -41,20 +42,23 @@ namespace ControlAlgorithms::Controllers {
         [[nodiscard]] VectorNd<N> createSwitchingFunction(const VectorNd<N> &trackingPositionError,
                                                           const VectorNd<N> &trackingVelocityError) const;
 
-        /** Control calculation
+        /** Control computation (can be used with unknown disturbance in system state)
          *
          * @param gConstDiagInv
-         * @param h
          * @param desiredTrajectoryVelocity
          * @param trackingPositionError
          * @param trackingVelocityError
-         * @param phi
+         * @param prevStepControl
+         * @param currentAcceleration
          * @return
          */
-        [[nodiscard]] VectorNd<N> computeControl(const MatrixNd<N> &gConstDiagInv, const VectorNd<N> &h,
-                                                 const VectorNd<N> &desiredTrajectoryVelocity,
-                                                 const VectorNd<N> &trackingPositionError,
-                                                 const VectorNd<N> &trackingVelocityError) const;
+        void computeControl(const MatrixNd<N> &gConstDiagInv,
+                            const VectorNd<N> &prevAcceleration,
+                            const VectorNd<N> &currentDesiredAcceleration,
+                            const VectorNd<N> &trackingPositionError,
+                            const VectorNd<N> &trackingVelocityError);
+
+        [[nodiscard]] VectorNd<N> getControl() const noexcept {return controlAction_;}
     };
 
 }// namespace ControlAlgorithms::Controllers

@@ -2,8 +2,8 @@
 // Created by Арсений Плахотнюк on 15.06.2024.
 //
 #include <fstream>
-#include "ControlAlgorithms/Controllers/FirstOrderSlidingModeControlWithTimeDelay.hpp"
-#include "ControlAlgorithms/ControlObjects/2DOFGimbal/FeedbackForm.hpp"
+#include "ControlAlgorithms/Controllers/FirstOrderSMC/FirstOrderSlidingModeControlWithTimeDelay.hpp"
+#include "ControlAlgorithms/ControlObjects/2DOFGimbal/TwoDOFGimbalDynamics.hpp"
 #include "gtest/gtest.h"
 #include <boost/numeric/odeint.hpp>
 #include "tests/Utils.hpp"
@@ -13,7 +13,7 @@
  */
 
 using namespace ControlAlgorithms;
-using namespace ControlObjects;
+using namespace ControlObjects::TwoDOFGimbal;
 using namespace Controllers;
 
 class ControlTwoAxisGimbalSMCData : public ::testing::Test {
@@ -34,9 +34,9 @@ protected:
     const double phi = 0.1;
 
     // System params
-    Params::State state{.x = {0, 0, 0, 0}, .t = 0};
+    State state{.x = {0, 0, 0, 0}, .xd = {1, 1, 0, 0}, .t = 0};
 
-    const Params::DirectFormParams params{.J1_ = 5.72 * 1e1,
+    const DirectFormParams params{.J1_ = 5.72 * 1e1,
             .J2_ = 5.79 * 1e1,
             .J3_ = 7.04 * 1e1,
             .J4_ = 6.22 * 1e1,
@@ -64,14 +64,7 @@ TEST_F(ControlTwoAxisGimbalSMCData, TEST1) {
     std::fstream file;
     file.open(PROJECT_DIR + "/tests/SMC/data/TwoAxisGimbalSMC.txt", std::ios::out);
 
-    TwoDOFGimbalFeedbackForm gimbal(params);  //!< модель системы
-
-    FirstOrderSMCTimeDelay<2> controller(lambdaMatrix, kMatrix, phi);
-
-    auto desiredTrajectory = [](const double t) -> Vector2d {
-        return {1, 1};
-    };
-
+    FirstOrderSMCTimeDelay<2> controller(lambdaMatrix, kMatrix, uControl, phi);
 
 
 }

@@ -7,15 +7,16 @@
 
 #include "ControlAlgorithms/Utils/BasicTypes.hpp"
 
-namespace ControlAlgorithms::ControlObjects::Params {
+namespace ControlAlgorithms::ControlObjects::TwoDOFGimbal {
 
     /**
-     * System state
+     * System state: state vector, desired state vector, time
      */
     struct State {
-        Vector6d x;//!< state vector [x0 = theta, x1 = ksi, x2 = theta', x3 = ksi', x4 = theta'',x5 = ksi'']
-        Vector6d xd;//!< state vector [xd0 = theta, xd1 = ksi, xd2 = theta', xd3 = ksi', xd4 = theta'',xd5 = ksi'']
-        double t;  //!< time
+        Vector4d x;//!< state vector [x0 = theta, x1 = ksi, x2 = theta', x3 = ksi']
+        Vector4d xd;//!< state vector [xd0 = theta, xd1 = ksi, xd2 = theta', xd3 = ksi']
+
+        State& operator=(const State &other)=default;
     };
 
     /**
@@ -66,14 +67,6 @@ namespace ControlAlgorithms::ControlObjects::Params {
         [[nodiscard]] Vector2d frictionForceVector(const Vector2d &velocityVec) const noexcept;
 
         [[nodiscard]] Matrix2d getConstDiagMatrixG()const noexcept{return gConstDiag_;}
-    };
-
-    /**
-     * State for computing RHS
-     */
-    struct SystemState{
-        State state_;
-        DirectFormParams params_;
     };
 
 }
