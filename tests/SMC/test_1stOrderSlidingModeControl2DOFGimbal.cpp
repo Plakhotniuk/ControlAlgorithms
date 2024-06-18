@@ -19,43 +19,44 @@ class ControlTwoAxisGimbalSMCData : public ::testing::Test {
 protected:
     // Время моделирования
     const double timeStartModeling = 0.;  //!< время начала моделирования
-    const double timeEndModeling = 30.;   //!< время конца моделирования
+    const double timeEndModeling = 10.;   //!< время конца моделирования
     const double checkTime = 3.;  //!< момент времени, начиная с которого происходит проверка состояния системы
     const double angleTolerance = 2.e-3;  //!< угловая точность наведения
 
     // параметры интегрирования
     const double integrationStep = 0.001;
+    const double integrTol = 1e-6;
     const double controlClock = 0.001;
     const double numOfIter = static_cast<uint>(controlClock / integrationStep);
 
 
     // Chattering avoidance
-    const double phi = 0.1;
+    const double phi = 1;
 
     // System params
-    State state{0, 0, 0, 0, 1, 1, 0, 0};
+    State state{0, 0, 0, 0, 0.5, 0.5, 0, 0};
 
-    const DirectFormParams params{.J1_ = 5.72 * 1e1,
+    const DirectFormParams params{
+            .J1_ = 5.72 * 1e1,
             .J2_ = 5.79 * 1e1,
             .J3_ = 7.04 * 1e1,
             .J4_ = 6.22 * 1e1,
-            .Kg_ = 0.1,
-            .Fs_ = 0.,
+            .Kg_ = 0.1, .Fs_ = 0.1,
             .gConstDiag_ = Matrix2d{{1, 0},
                                     {0, 1}}};
 
     // Control
     Vector2d uControl = {0., 0.};                // control input, u
 
-    Matrix2d kMatrix = Matrix2d{{18, 0},
-                          {0,  18}};
+    Matrix2d kMatrix = Matrix2d{{95, 0},
+                                {0,  95}};
     Matrix2d lambdaMatrix = Matrix2d{{5, 0},
-                               {0, 5}};
+                                     {0, 5}};
 
     void SetUp() override {}
 };
 
-TEST_F(ControlTwoAxisGimbalSMCData, TEST1) {
+TEST_F(ControlTwoAxisGimbalSMCData, TEST_FIXED_STEP) {
     std::fstream file;
     file.open(PROJECT_DIR + "/tests/SMC/data/TwoAxisGimbalSMC.txt", std::ios::out);
 
@@ -68,14 +69,42 @@ TEST_F(ControlTwoAxisGimbalSMCData, TEST1) {
     std::vector<State> x_vec;
     std::vector<double> times;
 
-    boost::numeric::odeint::runge_kutta4< State > stepper;
+    boost::numeric::odeint::runge_kutta4<State> stepper;
 
-    for(double t = timeStartModeling; t < timeEndModeling; t += integrationStep){
+    for (double t = timeStartModeling; t < timeEndModeling; t += integrationStep) {
         stepper.do_step(rhs, state, t, integrationStep);
         file << state.transpose() << " ";
         file << t << "\n";
     }
-
     file.close();
+}
 
+TEST_F(ControlTwoAxisGimbalSMCData, TEST_ADAPTIVE_STEP) {
+    std::fstream file;
+    file.open(PROJECT_DIR + "/tests/SMC/data/TwoAxisGimbalSMC2.txt", std::ios::out);
+
+    file << std::setprecision(10) << state.transpose() << " " << timeStartModeling << "\n";
+
+    FirstOrderSMCTimeDelay controller(lambdaMatrix, kMatrix, uControl, phi);
+
+    ComputeRHS::GimbalFOSMTDC::TwoDOFGimbalRHS rhs(state, controller, params, integrationStep);
+
+    std::vector<State> x_vec;
+    std::vector<double> times;
+
+    typedef boost::numeric::odeint::runge_kutta_cash_karp54<State> error_stepper_type;
+    typedef boost::numeric::odeint::controlled_runge_kutta<error_stepper_type> controlled_stepper_type;
+    controlled_stepper_type controlled_stepper;
+
+    boost::numeric::odeint::integrate_adaptive(
+            boost::numeric::odeint::make_controlled<error_stepper_type>(integrTol, integrTol),
+            rhs, state, timeStartModeling, timeEndModeling, integrationStep,
+            push_back_state_and_time(x_vec, times));
+
+
+    for (unsigned i = 0; i < x_vec.size(); ++i) {
+        file << x_vec[i].transpose() << " ";
+        file << times[i] << "\n";
+    }
+    file.close();
 }
