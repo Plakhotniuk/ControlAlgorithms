@@ -8,17 +8,18 @@
 #include "ControlAlgorithms/Utils/MathFunctions.hpp"
 
 namespace ControlAlgorithms::Controllers {
-    
+
     class FirstOrderSMCTimeDelay {
         Matrix2d lambdaMatrix_;
         Matrix2d KMatrix_;
-        Vector2d controlAction_;
         double phi_;
+        double maxControlValue_;
+        Vector2d controlAction_ = Vector2d::Zero();
 
     public:
         FirstOrderSMCTimeDelay(const Matrix2d &lambdaMatrix, const Matrix2d &kMatrix,
-                               const Vector2d &controlAction, const double phi)
-                : lambdaMatrix_(lambdaMatrix), KMatrix_(kMatrix), controlAction_(controlAction), phi_(phi) {};
+                               const double phi, const double maxControlValue)
+                : lambdaMatrix_(lambdaMatrix), KMatrix_(kMatrix), phi_(phi), maxControlValue_(maxControlValue) {};
 
         /** Check reaching sliding surface condition
          *
@@ -28,7 +29,7 @@ namespace ControlAlgorithms::Controllers {
          */
         [[nodiscard]] bool reachingConditionCheck(const Vector2d &S, const Matrix2d &K) const;
 
-        static void chatteringAvoidance(Vector2d &S, const double phi) ;
+        static void chatteringAvoidance(Vector2d &S, const double phi);
 
         /** Sliding surface calculation
         *
@@ -38,7 +39,7 @@ namespace ControlAlgorithms::Controllers {
         * @return
         */
         [[nodiscard]] Vector2d createSwitchingFunction(const Vector2d &trackingPositionError,
-                                                          const Vector2d &trackingVelocityError) const;
+                                                       const Vector2d &trackingVelocityError) const;
 
         /** Control computation (can be used with unknown disturbance in system state)
          *
@@ -56,7 +57,11 @@ namespace ControlAlgorithms::Controllers {
                             const Vector2d &trackingPositionError,
                             const Vector2d &trackingVelocityError);
 
-        [[nodiscard]] Vector2d getControl() const noexcept {return controlAction_;}
+        [[nodiscard]] Vector2d getControl() const {
+            return {std::clamp(controlAction_(0), -maxControlValue_, maxControlValue_),
+                    std::clamp(controlAction_(1), -maxControlValue_, maxControlValue_)};
+        }
+
     };
 
 }// namespace ControlAlgorithms::Controllers

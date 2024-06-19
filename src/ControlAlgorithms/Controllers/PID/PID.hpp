@@ -12,15 +12,17 @@ namespace ControlAlgorithms::Controllers {
         double kP_;
         double kI_;
         double kD_;
-        double controlAction_;
+        double maxControlValue_;
         double integralError_;  // накопленная ошибка
         double prevError_;      // ошибка на предыдущем шаге
+        double controlAction_ = 0;
 
     public:
-        PID(const double kP, const double kI, const double kD) : kP_(kP), kI_(kI), kD_(kD),
-                                                                 controlAction_(0),
-                                                                 integralError_(0),
-                                                                 prevError_(0) {};
+        PID(const double kP, const double kI, const double kD, const double maxControlValue) : kP_(kP), kI_(kI), kD_(kD),
+                                                                                               maxControlValue_(
+                                                                                                       maxControlValue),
+                                                                                               integralError_(0),
+                                                                                               prevError_(0) {};
 
         /** Функция считает управляющее воздействие ПИД-регулятора
         *
@@ -36,8 +38,9 @@ namespace ControlAlgorithms::Controllers {
             controlAction_ = kP_ * stateError + kI_ * integralError_ + kD_ * derivativeError;
         }
 
-        [[nodiscard]] double getControl() const noexcept { return controlAction_; }
-
+        [[nodiscard]] double getControl() const {
+            return std::clamp(controlAction_, -maxControlValue_, maxControlValue_);
+        }
     };
 }
 

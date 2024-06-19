@@ -3,15 +3,15 @@
 //
 
 #pragma once
-#include "gtest/gtest.h"
+
 #include "ControlAlgorithms/ControlObjects/2DOFGimbal/TwoDOFGimbalDynamics.hpp"
 #include "ControlAlgorithms/ComputeRHS/2DOFGimbal/Trajectory.hpp"
 
-namespace tests::TwoDOFGimbal{
+namespace tests::TwoDOFGimbal {
     using namespace ControlAlgorithms;
     using namespace ControlObjects::TwoDOFGimbal;
 
-    class ControlTwoAxisGimbalSMCData : public ::testing::Test {
+    class ControlTwoAxisGimbalData {
     protected:
         std::fstream file;
         // Время моделирования
@@ -36,11 +36,14 @@ namespace tests::TwoDOFGimbal{
                 .Kg_ = 0.1, .Fs_ = 0.1,
                 .gConstDiag_ = Matrix2d{{1, 0},
                                         {0, 1}},
-                .disturbanceSigma_ = Matrix2d{{0.0, 0},
-                                              {0,   0.0}},
+                .disturbanceSigma_ = Matrix2d{{1, 0},
+                                              {0,   1}},
                 .randomEngine_ = randomEngine};
 
         ComputeRHS::Trajectory desiredTraj{.omega_ = 2., .a1_ = 0.5, .a2_ = -0.5, .b1_ = 0.05, .b2_ = -0.05};
+
+        const double maxControlValue = 200;
+
     };
 
 }
