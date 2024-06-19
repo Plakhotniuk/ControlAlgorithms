@@ -6,6 +6,7 @@
 
 #include "ControlAlgorithms/ControlObjects/2DOFGimbal/TwoDOFGimbalDynamics.hpp"
 #include "ControlAlgorithms/Controllers/PID/PID.hpp"
+#include "Trajectory.hpp"
 
 namespace ControlAlgorithms::ComputeRHS::GimbalPID {
     class TwoDOFGimbalRHS {
@@ -14,21 +15,22 @@ namespace ControlAlgorithms::ComputeRHS::GimbalPID {
         Controllers::PID controller2_;
         ControlObjects::TwoDOFGimbal::DirectFormParams params_;
         double timeStep_;
+        Trajectory trajectory_;
+
     public:
         TwoDOFGimbalRHS(const ControlObjects::TwoDOFGimbal::State &state,
                         const Controllers::PID &controller1,
                         const Controllers::PID &controller2,
                         const ControlObjects::TwoDOFGimbal::DirectFormParams &params,
-                        const double timeStep) : state_(state),
+                        const double timeStep, const Trajectory &trajectory) : state_(state),
                                                  controller1_(controller1),
                                                  controller2_(controller2),
                                                  params_(params),
-                                                 timeStep_(timeStep) {};
+                                                 timeStep_(timeStep), trajectory_(trajectory) {};
 
         void operator()(const ControlObjects::TwoDOFGimbal::State &currentState, ControlObjects::TwoDOFGimbal::State &dxdt,
-                        const double /* t */) {
-            const Vector2d trackingPositionError =
-                    currentState.segment<2>(4) - currentState.segment<2>(0);
+                        const double t) {
+            const Vector2d trackingPositionError = trajectory_.getPosition(t) - currentState.segment<2>(0);
 
             controller1_.computeControl(trackingPositionError(0), timeStep_);
             controller2_.computeControl(trackingPositionError(1), timeStep_);

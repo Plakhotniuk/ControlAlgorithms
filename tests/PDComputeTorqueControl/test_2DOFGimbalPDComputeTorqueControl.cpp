@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 #include <boost/numeric/odeint.hpp>
 #include "tests/Utils.hpp"
-#include "ControlAlgorithms/ComputeRHS/2DOFGimbalPDComputeTorqueControl.hpp"
+#include "ControlAlgorithms/ComputeRHS/2DOFGimbal/PDComputeTorqueControl.hpp"
 
 /**
  *  Тест управления двух осевым поворотным устройством с помощью вычисленного управления крутящим моментом PD
@@ -29,7 +29,9 @@ protected:
     const double integrTol = 1e-6;
 
     // System params
-    State state{0, 0, 0, 0, 0.5, 0.5, 0, 0};
+    State state{0, 0, 0, 0};
+
+    ComputeRHS::Trajectory desiredTraj{.omega_ = 0., .a1_ = 0.5, .a2_ = 0.5, .b1_ = 0.0, .b2_ = 0.0};
 
     std::mt19937 randomEngine;
 
@@ -60,9 +62,10 @@ TEST_F(ControlTwoAxisGimbalPDComputedTorqueControl, TEST1){
     PDComputedTorqueRegulator controller1(kP1, kD1);
     PDComputedTorqueRegulator controller2(kP2, kD2);
 
-    file << std::setprecision(10) << state.transpose() << " " << timeStartModeling << "\n";
+    file << std::setprecision(10) << state.transpose() << " " << desiredTraj.getPosition(0).transpose() << " "
+         << timeStartModeling << "\n";
 
-    ComputeRHS::GimbalPDComputedControl::TwoDOFGimbalRHS rhs(state, controller1, controller2, params, integrationStep);
+    ComputeRHS::GimbalPDComputedControl::TwoDOFGimbalRHS rhs(state, controller1, controller2, params, integrationStep, desiredTraj);
 
     std::vector<State> x_vec;
     std::vector<double> times;
@@ -87,9 +90,10 @@ TEST_F(ControlTwoAxisGimbalPDComputedTorqueControl, TEST_DISTURBANCE){
 
     params.disturbanceSigma_ = Matrix2d{{0.5, 0}, {0, 0.5}};
 
-    file << std::setprecision(10) << state.transpose() << " " << timeStartModeling << "\n";
+    file << std::setprecision(10) << state.transpose() << " " << desiredTraj.getPosition(0).transpose() << " "
+         << timeStartModeling << "\n";
 
-    ComputeRHS::GimbalPDComputedControl::TwoDOFGimbalRHS rhs(state, controller1, controller2, params, integrationStep);
+    ComputeRHS::GimbalPDComputedControl::TwoDOFGimbalRHS rhs(state, controller1, controller2, params, integrationStep, desiredTraj);
 
     std::vector<State> x_vec;
     std::vector<double> times;

@@ -12,8 +12,7 @@ namespace ControlAlgorithms::ControlObjects::TwoDOFGimbal {
     /**
      * System state: state vector, desired state vector, time
      */
-    typedef Vector8d State; //!< [x0 = theta, x1 = ksi, x2 = theta', x3 = ksi',
-                            //!< x4 = theta_d, x5 = ksi_d, x6 = theta'_d, x7 = ksi'_d]
+    typedef Vector4d State; //!< [x0 = theta, x1 = ksi, x2 = theta', x3 = ksi']
 
     struct push_back_state_and_time {
         std::vector<State> &m_states;

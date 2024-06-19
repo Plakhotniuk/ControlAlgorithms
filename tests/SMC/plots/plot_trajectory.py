@@ -16,18 +16,19 @@ def plot_data(filepath):
     position2 = data[:, 1]
 
     position_des1 = data[:, 4]
-    position_des2 = data[:, 4]
+    position_des2 = data[:, 5]
 
     times = data[:, 8]
-    axis[0].title.set_text('Значения углов во времени.\n Скользяший режим управления.')
-    axis[0].plot(times, position1, 'r-', label=f'Целевой угол 1')
-    axis[0].plot(times, position_des1, label=r'Текущий угол 1')
+    axis[0].title.set_text('Зависимость углов от времени.\n Скользяший режим управления.')
+    axis[0].plot(times, position1, label=r'Текущий угол 1')
+    axis[0].plot(times, position_des1, 'r-', label=f'Целевой угол 1')
+
     axis[0].grid()
     axis[0].set_ylabel('Угол, рад')
     axis[0].legend()
+    axis[1].plot(times, position2, label=r'Текущий угол 2')
+    axis[1].plot(times, position_des2, 'r-', label=f'Целевой угол 2')
 
-    axis[1].plot(times, position2, 'r-', label=f'Целевой угол 2')
-    axis[1].plot(times, position_des2, label=r'Текущий угол 2')
     axis[1].grid()
     axis[1].set_ylabel('Угол, рад')
     axis[1].set_xlabel('время, c')

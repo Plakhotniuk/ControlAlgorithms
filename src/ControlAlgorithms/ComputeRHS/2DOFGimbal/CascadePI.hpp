@@ -7,6 +7,7 @@
 
 #include "ControlAlgorithms/ControlObjects/2DOFGimbal/TwoDOFGimbalDynamics.hpp"
 #include "ControlAlgorithms/Controllers/PID/PID.hpp"
+#include "Trajectory.hpp"
 
 namespace ControlAlgorithms::ComputeRHS::GimbalCascadePI {
     class TwoDOFGimbalRHS {
@@ -17,6 +18,7 @@ namespace ControlAlgorithms::ComputeRHS::GimbalCascadePI {
         Controllers::PID rateController2_;
         ControlObjects::TwoDOFGimbal::DirectFormParams params_;
         double timeStep_;
+        Trajectory desiredTrajectory_;
     public:
         TwoDOFGimbalRHS(const ControlObjects::TwoDOFGimbal::State &state,
                         const Controllers::PID &positionController1,
@@ -24,18 +26,18 @@ namespace ControlAlgorithms::ComputeRHS::GimbalCascadePI {
                         const Controllers::PID &positionController2,
                         const Controllers::PID &rateController2,
                         const ControlObjects::TwoDOFGimbal::DirectFormParams &params,
-                        const double timeStep) : state_(state),
+                        const double timeStep, const Trajectory trajectory) : state_(state),
                                                  positionController1_(positionController1),
                                                  rateController1_(rateController1),
                                                  positionController2_(positionController2),
                                                  rateController2_(rateController2),
                                                  params_(params),
-                                                 timeStep_(timeStep) {};
+                                                 timeStep_(timeStep), desiredTrajectory_(trajectory) {};
 
         void operator()(const ControlObjects::TwoDOFGimbal::State &currentState, ControlObjects::TwoDOFGimbal::State &dxdt,
-                        const double /* t */) {
+                        const double t) {
             const Vector2d trackingPositionError =
-                    currentState.segment<2>(4) - currentState.segment<2>(0);
+                    desiredTrajectory_.getPosition(t) - currentState.segment<2>(0);
 
             positionController1_.computeControl(trackingPositionError(0), timeStep_);
             rateController1_.computeControl(positionController1_.getControl() - currentState(2), timeStep_);

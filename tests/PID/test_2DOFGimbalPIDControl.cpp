@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 #include <boost/numeric/odeint.hpp>
 #include "tests/Utils.hpp"
-#include "ControlAlgorithms/ComputeRHS/2DOFGimbalPID.hpp"
+#include "ControlAlgorithms/ComputeRHS/2DOFGimbal/rhsPID.hpp"
 
 /**
  *  Тест управления двух осевым поворотным устройством с помощью ПИД регулятора
@@ -29,7 +29,7 @@ protected:
     const double integrTol = 1e-6;
 
     // System params
-    State state{0, 0, 0, 0, 0.5, 0.5, 0, 0};
+    State state{0, 0, 0, 0};
 
     std::mt19937 randomEngine;
 
@@ -44,6 +44,8 @@ protected:
             .disturbanceSigma_ = Matrix2d{{0.0, 0},
                                           {0,   0.0}},
             .randomEngine_ = randomEngine};
+
+    ComputeRHS::Trajectory desiredTraj{.omega_ = 2., .a1_ = 0.5, .a2_ = 0.5, .b1_ = 0.1, .b2_ = 0.1};
 
     //Control params
     const double kP1 = 4500;
@@ -62,9 +64,10 @@ TEST_F(ControlTwoAxisGimbalPidData, TEST1){
     PID controller1(kP1, kI1, kD1);
     PID controller2(kP2, kI2, kD2);
 
-    file << std::setprecision(10) << state.transpose() << " " << timeStartModeling << "\n";
+    file << std::setprecision(10) << state.transpose() << " " << desiredTraj.getState(0).transpose() << " "
+         << timeStartModeling << "\n";
 
-    ComputeRHS::GimbalPID::TwoDOFGimbalRHS rhs(state, controller1, controller2, params, integrationStep);
+    ComputeRHS::GimbalPID::TwoDOFGimbalRHS rhs(state, controller1, controller2, params, integrationStep, desiredTraj);
 
     std::vector<State> x_vec;
     std::vector<double> times;
@@ -73,7 +76,7 @@ TEST_F(ControlTwoAxisGimbalPidData, TEST1){
 
     for (double t = timeStartModeling; t < timeEndModeling; t += integrationStep) {
         stepper.do_step(rhs, state, t, integrationStep);
-        file << state.transpose() << " ";
+        file << std::setprecision(10) << state.transpose() << " " << desiredTraj.getState(t).transpose() << " ";
         file << t << "\n";
     }
     file.close();
@@ -89,9 +92,10 @@ TEST_F(ControlTwoAxisGimbalPidData, TEST_DISTURBANCE){
 
     params.disturbanceSigma_ = Matrix2d{{0.5, 0}, {0, 0.5}};
 
-    file << std::setprecision(10) << state.transpose() << " " << timeStartModeling << "\n";
+    file << std::setprecision(10) << state.transpose() << " " << desiredTraj.getState(0).transpose() << " "
+         << timeStartModeling << "\n";
 
-    ComputeRHS::GimbalPID::TwoDOFGimbalRHS rhs(state, controller1, controller2, params, integrationStep);
+    ComputeRHS::GimbalPID::TwoDOFGimbalRHS rhs(state, controller1, controller2, params, integrationStep, desiredTraj);
 
     std::vector<State> x_vec;
     std::vector<double> times;
@@ -100,7 +104,7 @@ TEST_F(ControlTwoAxisGimbalPidData, TEST_DISTURBANCE){
 
     for (double t = timeStartModeling; t < timeEndModeling; t += integrationStep) {
         stepper.do_step(rhs, state, t, integrationStep);
-        file << state.transpose() << " ";
+        file << std::setprecision(10) << state.transpose() << " " << desiredTraj.getState(t).transpose() << " ";
         file << t << "\n";
     }
     file.close();
@@ -119,7 +123,7 @@ TEST_F(ControlTwoAxisGimbalPidData, TEST_TUNING){
 
     PID controller1(kp1, ki1, kd1);
     PID controller2(kp2, ki2, kd2);
-    ComputeRHS::GimbalPID::TwoDOFGimbalRHS rhs(state, controller1, controller2, params, integrationStep);
+    ComputeRHS::GimbalPID::TwoDOFGimbalRHS rhs(state, controller1, controller2, params, integrationStep, desiredTraj);
 
     std::vector<State> x_vec;
     std::vector<double> times;

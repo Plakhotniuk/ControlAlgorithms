@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 #include <boost/numeric/odeint.hpp>
 #include "tests/Utils.hpp"
-#include "ControlAlgorithms/ComputeRHS/2DOFGimbalCascadePI.hpp"
+#include "ControlAlgorithms/ComputeRHS/2DOFGimbal/CascadePI.hpp"
 
 /**
  *  Тест управления двух осевым поворотным устройством с помощью ПИД регулятора
@@ -51,7 +51,9 @@ protected:
     const double integrTol = 1e-6;
 
     // System params
-    State state{0, 0, 0, 0, 0.5, 0.5, 0, 0};
+    State state{0, 0, 0, 0};
+
+    ComputeRHS::Trajectory desiredTraj{.omega_ = 0., .a1_ = 0.5, .a2_ = 0.5, .b1_ = 0.0, .b2_ = 0.0};
 
     std::mt19937 randomEngine;
 
@@ -78,10 +80,11 @@ TEST_F(ControlTwoAxisGimbalCascadePIData, TEST1) {
     PID positionController2(positionKp2, positionKi2, 0);
     PID rateController2(rateKp2, rateKi2, 0);
 
-    file << std::setprecision(10) << state.transpose() << " " << timeStartModeling << "\n";
+    file << std::setprecision(10) << state.transpose() << " " << desiredTraj.getPosition(0).transpose() << " "
+         << timeStartModeling << "\n";
 
     ComputeRHS::GimbalCascadePI::TwoDOFGimbalRHS rhs(state, positionController1, rateController1, positionController2,
-                                                     rateController2, params, integrationStep);
+                                                     rateController2, params, integrationStep, desiredTraj);
 
     std::vector<State> x_vec;
     std::vector<double> times;
@@ -107,10 +110,11 @@ TEST_F(ControlTwoAxisGimbalCascadePIData, TEST_DIST) {
     PID rateController2(rateKp2, rateKi2, 0);
     params.disturbanceSigma_ = Matrix2d{{0.5, 0}, {0, 0.5}};
 
-    file << std::setprecision(10) << state.transpose() << " " << timeStartModeling << "\n";
+    file << std::setprecision(10) << state.transpose() << " " << desiredTraj.getPosition(0).transpose() << " "
+         << timeStartModeling << "\n";
 
     ComputeRHS::GimbalCascadePI::TwoDOFGimbalRHS rhs(state, positionController1, rateController1, positionController2,
-                                                     rateController2, params, integrationStep);
+                                                     rateController2, params, integrationStep, desiredTraj);
 
     std::vector<State> x_vec;
     std::vector<double> times;
