@@ -4,7 +4,6 @@
 
 #pragma once
 #include "gtest/gtest.h"
-#include "tests/Utils.hpp"
 #include "ControlAlgorithms/ControlObjects/2DOFGimbal/TwoDOFGimbalDynamics.hpp"
 #include "ControlAlgorithms/ComputeRHS/2DOFGimbal/Trajectory.hpp"
 
@@ -14,6 +13,7 @@ namespace tests::TwoDOFGimbal{
 
     class ControlTwoAxisGimbalSMCData : public ::testing::Test {
     protected:
+        std::fstream file;
         // Время моделирования
         const double timeStartModeling = 0.;  //!< время начала моделирования
         const double timeEndModeling = 10.;   //!< время конца моделирования

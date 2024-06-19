@@ -16,6 +16,7 @@ namespace tests::Utils{
         file << std::setprecision(10) << state.transpose() << " " << trajectory.getState(time).transpose() << " "
              << time << "\n";
     }
+
 }
 
 #endif //CONTROLALGORITHMS_UTILS_HPP

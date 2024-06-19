@@ -6,6 +6,7 @@
 #include "tests/2DOFGimbal/SystemConfig.hpp"
 #include "ControlAlgorithms/Controllers/FirstOrderSMC/FirstOrderSlidingModeControlWithTimeDelay.hpp"
 #include "ControlAlgorithms/ComputeRHS/2DOFGimbal/FOSMTDC.hpp"
+#include "tests/Utils.hpp"
 
 /**
  *  Тест управления двух осевым поворотным устройством с помощью скользящего режима.
@@ -31,11 +32,10 @@ protected:
 
 
 TEST_F(ControlTwoAxisGimbalSMCData, TEST_FIXED_STEP) {
-    std::fstream file;
-    file.open(PROJECT_DIR + "/tests/SMC/data/TwoAxisGimbalSMC.txt", std::ios::out);
 
-    file << std::setprecision(10) << state.transpose() << " " << desiredTraj.getState(0).transpose() << " "
-         << timeStartModeling << "\n";
+    file.open(PROJECT_DIR + "/tests/2DOFGimbal/SMC/data/TwoAxisGimbalSMC.txt", std::ios::out);
+
+    tests::Utils::fileDrop(file, state, desiredTraj, timeStartModeling);
 
     FirstOrderSMCTimeDelay controller(lambdaMatrix, kMatrix, uControl, phi);
 
@@ -48,21 +48,18 @@ TEST_F(ControlTwoAxisGimbalSMCData, TEST_FIXED_STEP) {
 
     for (double t = timeStartModeling; t < timeEndModeling; t += integrationStep) {
         stepper.do_step(rhs, state, t, integrationStep);
-        file << state.transpose() << " " << desiredTraj.getState(t).transpose() << " ";
-        file << t << "\n";
+        tests::Utils::fileDrop(file, state, desiredTraj, t);
     }
     file.close();
 }
 
 TEST_F(ControlTwoAxisGimbalSMCData, TEST_FIXED_STEP_WITH_DISTURBANCE) {
-    std::fstream file;
-    file.open(PROJECT_DIR + "/tests/SMC/data/TwoAxisGimbalSMCdist.txt", std::ios::out);
+    file.open(PROJECT_DIR + "/tests/2DOFGimbal/SMC/data/TwoAxisGimbalSMCdist.txt", std::ios::out);
 
     params.disturbanceSigma_ = Matrix2d{{1, 0},
                                         {0,   1}};
 
-    file << std::setprecision(10) << state.transpose() << " " << desiredTraj.getState(0).transpose() << " "
-         << timeStartModeling << "\n";
+    tests::Utils::fileDrop(file, state, desiredTraj, timeStartModeling);
 
     FirstOrderSMCTimeDelay controller(lambdaMatrix, kMatrix, uControl, phi);
 
@@ -75,18 +72,15 @@ TEST_F(ControlTwoAxisGimbalSMCData, TEST_FIXED_STEP_WITH_DISTURBANCE) {
 
     for (double t = timeStartModeling; t < timeEndModeling; t += integrationStep) {
         stepper.do_step(rhs, state, t, integrationStep);
-        file << state.transpose() << " " << desiredTraj.getState(t).transpose() << " ";
-        file << t << "\n";
+        tests::Utils::fileDrop(file, state, desiredTraj, t);
     }
     file.close();
 }
 
 TEST_F(ControlTwoAxisGimbalSMCData, TEST_ADAPTIVE_STEP) {
-    std::fstream file;
-    file.open(PROJECT_DIR + "/tests/SMC/data/TwoAxisGimbalSMC2.txt", std::ios::out);
+    file.open(PROJECT_DIR + "/tests/2DOFGimbal/SMC/data/TwoAxisGimbalSMC2.txt", std::ios::out);
 
-    file << std::setprecision(10) << state.transpose() << " " << desiredTraj.getState(0).transpose() << " "
-         << timeStartModeling << "\n";
+    tests::Utils::fileDrop(file, state, desiredTraj, timeStartModeling);
 
     FirstOrderSMCTimeDelay controller(lambdaMatrix, kMatrix, uControl, phi);
 
@@ -105,8 +99,7 @@ TEST_F(ControlTwoAxisGimbalSMCData, TEST_ADAPTIVE_STEP) {
             push_back_state_and_time(x_vec, times));
 
     for (unsigned i = 0; i < x_vec.size(); ++i) {
-        file << x_vec[i].transpose() << " " << desiredTraj.getState(times[i]).transpose() << " ";
-        file << times[i] << "\n";
+        tests::Utils::fileDrop(file, x_vec[i], desiredTraj, times[i]);
     }
     file.close();
 }

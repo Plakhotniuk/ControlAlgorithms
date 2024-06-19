@@ -1,6 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def plot_trajectories():
+    pass
+
 
 def rad_to_ang_sec(rad):
     return rad * 206264
