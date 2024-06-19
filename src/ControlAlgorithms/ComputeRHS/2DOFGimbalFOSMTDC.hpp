@@ -10,11 +10,16 @@
 
 namespace ControlAlgorithms::ComputeRHS::GimbalFOSMTDC {
 
+    struct Trajectory{
+
+    };
+
     class TwoDOFGimbalRHS {
         ControlObjects::TwoDOFGimbal::State state_;
         Controllers::FirstOrderSMCTimeDelay controller_;
         ControlObjects::TwoDOFGimbal::DirectFormParams params_;
         double timeStep_;
+
 
     public:
         TwoDOFGimbalRHS(const ControlObjects::TwoDOFGimbal::State &state,
@@ -26,7 +31,7 @@ namespace ControlAlgorithms::ComputeRHS::GimbalFOSMTDC {
                                                  timeStep_(timeStep) {};
 
         void operator()(const ControlObjects::TwoDOFGimbal::State &currentState, ControlObjects::TwoDOFGimbal::State &dxdt,
-                        const double /* t */) {
+                        const double t) {
             const Vector2d trackingPositionError =
                     currentState.segment<2>(0) - currentState.segment<2>(4);
             const Vector2d trackingVelocityError =
