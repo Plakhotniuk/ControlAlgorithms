@@ -45,7 +45,7 @@ protected:
                                           {0,   0.0}},
             .randomEngine_ = randomEngine};
 
-    ComputeRHS::Trajectory desiredTraj{.omega_ = 2., .a1_ = 0.5, .a2_ = 0.5, .b1_ = 0.1, .b2_ = 0.1};
+    ComputeRHS::Trajectory desiredTraj{.omega_ = 2., .a1_ = 0.5, .a2_ = -0.5, .b1_ = 0.05, .b2_ = -0.05};
 
     //Control params
     const double kP1 = 4500;

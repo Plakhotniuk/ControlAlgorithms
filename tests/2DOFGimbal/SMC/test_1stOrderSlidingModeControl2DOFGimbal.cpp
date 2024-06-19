@@ -2,9 +2,9 @@
 // Created by Арсений Плахотнюк on 15.06.2024.
 //
 #include <fstream>
-#include "gtest/gtest.h"
 #include <boost/numeric/odeint.hpp>
-#include "tests/Utils.hpp"
+#include "tests/2DOFGimbal/SystemConfig.hpp"
+#include "ControlAlgorithms/Controllers/FirstOrderSMC/FirstOrderSlidingModeControlWithTimeDelay.hpp"
 #include "ControlAlgorithms/ComputeRHS/2DOFGimbal/FOSMTDC.hpp"
 
 /**
@@ -15,36 +15,9 @@ using namespace ControlAlgorithms;
 using namespace ControlObjects::TwoDOFGimbal;
 using namespace Controllers;
 
-class ControlTwoAxisGimbalSMCData : public ::testing::Test {
+
+class ControlTwoAxisGimbalSMCData : public ::tests::TwoDOFGimbal::ControlTwoAxisGimbalSMCData {
 protected:
-    // Время моделирования
-    const double timeStartModeling = 0.;  //!< время начала моделирования
-    const double timeEndModeling = 10.;   //!< время конца моделирования
-    const double checkTime = 3.;  //!< момент времени, начиная с которого происходит проверка состояния системы
-    const double angleTolerance = 2.e-3;  //!< угловая точность наведения
-
-    // параметры интегрирования
-    const double integrationStep = 0.001;
-    const double integrTol = 1e-6;
-
-    // System params
-    State state{0, 0, 0, 0};
-    std::mt19937 randomEngine;
-
-    DirectFormParams params{
-            .J1_ = 5.72 * 1e1,
-            .J2_ = 5.79 * 1e1,
-            .J3_ = 7.04 * 1e1,
-            .J4_ = 6.22 * 1e1,
-            .Kg_ = 0.1, .Fs_ = 0.1,
-            .gConstDiag_ = Matrix2d{{1, 0},
-                                    {0, 1}},
-            .disturbanceSigma_ = Matrix2d{{0.0, 0},
-                                          {0,   0.0}},
-            .randomEngine_ = randomEngine};
-
-    ComputeRHS::Trajectory desiredTraj{.omega_ = 2., .a1_ = 0.5, .a2_ = -0.5, .b1_ = 0.05, .b2_ = -0.05};
-
     //Control params
     // Chattering avoidance
     const double phi = 1;
@@ -55,6 +28,7 @@ protected:
     Matrix2d lambdaMatrix = Matrix2d{{5, 0},
                                      {0, 5}};
 };
+
 
 TEST_F(ControlTwoAxisGimbalSMCData, TEST_FIXED_STEP) {
     std::fstream file;
@@ -106,7 +80,6 @@ TEST_F(ControlTwoAxisGimbalSMCData, TEST_FIXED_STEP_WITH_DISTURBANCE) {
     }
     file.close();
 }
-
 
 TEST_F(ControlTwoAxisGimbalSMCData, TEST_ADAPTIVE_STEP) {
     std::fstream file;
