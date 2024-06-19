@@ -5,20 +5,15 @@
 #pragma once
 
 #include "ControlAlgorithms/Utils/BasicTypes.hpp"
+#include <random>
 
 namespace ControlAlgorithms::ControlObjects::TwoDOFGimbal {
 
     /**
      * System state: state vector, desired state vector, time
      */
-//    struct State {
-//        Vector4d x;//!< state vector [x0 = theta, x1 = ksi, x2 = theta', x3 = ksi']
-//        Vector4d xd;//!< state vector [xd0 = theta, xd1 = ksi, xd2 = theta', xd3 = ksi']
-//
-//        State& operator=(const State &other)=default;
-//    };
-
-    typedef Vector8d State;
+    typedef Vector8d State; //!< [x0 = theta, x1 = ksi, x2 = theta', x3 = ksi',
+                            //!< x4 = theta_d, x5 = ksi_d, x6 = theta'_d, x7 = ksi'_d]
 
     struct push_back_state_and_time {
         std::vector<State> &m_states;
@@ -45,6 +40,8 @@ namespace ControlAlgorithms::ControlObjects::TwoDOFGimbal {
         double Kg_;//!< (weight of gimbal) x (distance from center of mass to the axis of rotation)
         double Fs_;//!< friction force constant
         Matrix2d gConstDiag_;
+        Matrix2d disturbanceSigma_;
+        std::mt19937 &randomEngine_;
 
         /** Calculate gimbal moment of inertia matrix M
          *

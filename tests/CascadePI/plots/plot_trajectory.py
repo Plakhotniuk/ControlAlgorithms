@@ -34,6 +34,6 @@ def plot_data(filepath):
     axis[1].legend()
 
 
-plot_data('../data/TwoAxisGimbalCascadePI.txt')
-plt.savefig('two_axis_gimbal_cascade_pi_traj.png')
+plot_data('../data/TwoAxisGimbalCascadePIdist.txt')
+# plt.savefig('two_axis_gimbal_cascade_pi_traj.png')
 plt.show()

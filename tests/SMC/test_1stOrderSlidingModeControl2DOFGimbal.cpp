@@ -29,15 +29,19 @@ protected:
 
     // System params
     State state{0, 0, 0, 0, 0.5, 0.5, 0, 0};
+    std::mt19937 randomEngine;
 
-    const DirectFormParams params{
+    DirectFormParams params{
             .J1_ = 5.72 * 1e1,
             .J2_ = 5.79 * 1e1,
             .J3_ = 7.04 * 1e1,
             .J4_ = 6.22 * 1e1,
             .Kg_ = 0.1, .Fs_ = 0.1,
             .gConstDiag_ = Matrix2d{{1, 0},
-                                    {0, 1}}};
+                                    {0, 1}},
+            .disturbanceSigma_ = Matrix2d{{0.0, 0},
+                                          {0,   0.0}},
+            .randomEngine_ = randomEngine};
 
     //Control params
     // Chattering avoidance
@@ -72,6 +76,32 @@ TEST_F(ControlTwoAxisGimbalSMCData, TEST_FIXED_STEP) {
     }
     file.close();
 }
+
+TEST_F(ControlTwoAxisGimbalSMCData, TEST_FIXED_STEP_WITH_DISTURBANCE) {
+    std::fstream file;
+    file.open(PROJECT_DIR + "/tests/SMC/data/TwoAxisGimbalSMCdist.txt", std::ios::out);
+
+    params.disturbanceSigma_ = Matrix2d{{0.5, 0}, {0, 0.5}};
+
+    file << std::setprecision(10) << state.transpose() << " " << timeStartModeling << "\n";
+
+    FirstOrderSMCTimeDelay controller(lambdaMatrix, kMatrix, uControl, phi);
+
+    ComputeRHS::GimbalFOSMTDC::TwoDOFGimbalRHS rhs(state, controller, params, integrationStep);
+
+    std::vector<State> x_vec;
+    std::vector<double> times;
+
+    boost::numeric::odeint::runge_kutta4<State> stepper;
+
+    for (double t = timeStartModeling; t < timeEndModeling; t += integrationStep) {
+        stepper.do_step(rhs, state, t, integrationStep);
+        file << state.transpose() << " ";
+        file << t << "\n";
+    }
+    file.close();
+}
+
 
 TEST_F(ControlTwoAxisGimbalSMCData, TEST_ADAPTIVE_STEP) {
     std::fstream file;

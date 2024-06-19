@@ -1,21 +1,21 @@
 //
-// Created by Арсений Плахотнюк on 18.06.2024.
+// Created by Арсений Плахотнюк on 19.06.2024.
 //
 #include <fstream>
 #include "gtest/gtest.h"
 #include <boost/numeric/odeint.hpp>
 #include "tests/Utils.hpp"
-#include "ControlAlgorithms/ComputeRHS/2DOFGimbalPID.hpp"
+#include "ControlAlgorithms/ComputeRHS/2DOFGimbalPDComputeTorqueControl.hpp"
 
 /**
- *  Тест управления двух осевым поворотным устройством с помощью ПИД регулятора
+ *  Тест управления двух осевым поворотным устройством с помощью вычисленного управления крутящим моментом PD
  */
 
 using namespace ControlAlgorithms;
 using namespace ControlObjects::TwoDOFGimbal;
 using namespace Controllers;
 
-class ControlTwoAxisGimbalPidData : public ::testing::Test {
+class ControlTwoAxisGimbalPDComputedTorqueControl : public ::testing::Test {
 protected:
 
     // Время моделирования
@@ -46,25 +46,23 @@ protected:
             .randomEngine_ = randomEngine};
 
     //Control params
-    const double kP1 = 4500;
-    const double kI1 = 0;
-    const double kD1 = 5000;
+    const double kP1 = 100;
+    const double kD1 = 20;
 
-    const double kP2 = 4500;
-    const double kI2 = 0;
-    const double kD2 = 5000;
+    const double kP2 = 100;
+    const double kD2 = 20;
 };
 
-TEST_F(ControlTwoAxisGimbalPidData, TEST1){
+TEST_F(ControlTwoAxisGimbalPDComputedTorqueControl, TEST1){
     std::fstream file;
-    file.open(PROJECT_DIR + "/tests/PID/data/TwoAxisGimbalPID.txt", std::ios::out);
+    file.open(PROJECT_DIR + "/tests/PDComputeTorqueControl/data/TwoAxisGimbalPD.txt", std::ios::out);
 
-    PID controller1(kP1, kI1, kD1);
-    PID controller2(kP2, kI2, kD2);
+    PDComputedTorqueRegulator controller1(kP1, kD1);
+    PDComputedTorqueRegulator controller2(kP2, kD2);
 
     file << std::setprecision(10) << state.transpose() << " " << timeStartModeling << "\n";
 
-    ComputeRHS::GimbalPID::TwoDOFGimbalRHS rhs(state, controller1, controller2, params, integrationStep);
+    ComputeRHS::GimbalPDComputedControl::TwoDOFGimbalRHS rhs(state, controller1, controller2, params, integrationStep);
 
     std::vector<State> x_vec;
     std::vector<double> times;
@@ -80,18 +78,18 @@ TEST_F(ControlTwoAxisGimbalPidData, TEST1){
 
 }
 
-TEST_F(ControlTwoAxisGimbalPidData, TEST_DISTURBANCE){
+TEST_F(ControlTwoAxisGimbalPDComputedTorqueControl, TEST_DISTURBANCE){
     std::fstream file;
-    file.open(PROJECT_DIR + "/tests/PID/data/TwoAxisGimbalPIDdist.txt", std::ios::out);
+    file.open(PROJECT_DIR + "/tests/PDComputeTorqueControl/data/TwoAxisGimbalPDdist.txt", std::ios::out);
 
-    PID controller1(kP1, kI1, kD1);
-    PID controller2(kP2, kI2, kD2);
+    PDComputedTorqueRegulator controller1(kP1, kD1);
+    PDComputedTorqueRegulator controller2(kP2, kD2);
 
     params.disturbanceSigma_ = Matrix2d{{0.5, 0}, {0, 0.5}};
 
     file << std::setprecision(10) << state.transpose() << " " << timeStartModeling << "\n";
 
-    ComputeRHS::GimbalPID::TwoDOFGimbalRHS rhs(state, controller1, controller2, params, integrationStep);
+    ComputeRHS::GimbalPDComputedControl::TwoDOFGimbalRHS rhs(state, controller1, controller2, params, integrationStep);
 
     std::vector<State> x_vec;
     std::vector<double> times;
@@ -104,35 +102,4 @@ TEST_F(ControlTwoAxisGimbalPidData, TEST_DISTURBANCE){
         file << t << "\n";
     }
     file.close();
-
 }
-
-TEST_F(ControlTwoAxisGimbalPidData, TEST_TUNING){
-
-    const double kp1 = 4500;
-    const double ki1 = 0;
-    const double kd1 = 5000;
-
-    const double kp2 = 4500;
-    const double ki2 = 0;
-    const double kd2 = 5000;
-
-    PID controller1(kp1, ki1, kd1);
-    PID controller2(kp2, ki2, kd2);
-    ComputeRHS::GimbalPID::TwoDOFGimbalRHS rhs(state, controller1, controller2, params, integrationStep);
-
-    std::vector<State> x_vec;
-    std::vector<double> times;
-
-    boost::numeric::odeint::runge_kutta4<State> stepper;
-
-    double stateError = 0;
-
-    for (double t = timeStartModeling; t < timeEndModeling; t += integrationStep) {
-        stepper.do_step(rhs, state, t, integrationStep);
-        stateError += std::sqrt((state(0) - state(4))*(state(0) - state(4)) + (state(1) - state(5))*(state(1) - state(5)));
-    }
-
-    std::cout << stateError << std::endl;
-}
-

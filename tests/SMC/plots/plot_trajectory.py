@@ -34,6 +34,6 @@ def plot_data(filepath):
     axis[1].legend()
 
 
-plot_data('../data/TwoAxisGimbalSMC.txt')
-plt.savefig('two_axis_gimbal_smc_traj.png')
+plot_data('../data/TwoAxisGimbalSMCdist.txt')
+# plt.savefig('two_axis_gimbal_smc_traj.png')
 plt.show()

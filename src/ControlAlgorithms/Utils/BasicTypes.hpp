@@ -30,4 +30,11 @@ namespace ControlAlgorithms {
     template<unsigned N>
     using VectorNd = Eigen::Matrix<double, N, 1>;// Вектор размера N с типом double
 
+    template<typename Type, int Rows, int MaxRows = Rows>
+    using Vector =
+            Eigen::Matrix<Type, static_cast<int>(Rows), 1, 0, static_cast<int>(MaxRows), 1>;  // Базовый класс векторов
+
+    template<typename Type, int Rows, int Cols>
+    using Matrix = Eigen::Matrix<Type, Rows, Cols>;
+
 }// namespace ControlAlgorithms

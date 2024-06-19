@@ -18,11 +18,11 @@ def plot_data(filepath):
     plt.plot(times, rad_to_ang_sec(np.abs(position - position_des)))
 
 
-plot_data('../data/TwoAxisGimbalPID.txt')
+plot_data('../data/TwoAxisGimbalPIDdist.txt')
 plt.title('Зависимость ошибки от времени.\n ПД регулятор.')
 plt.ylabel('угол, угловые секунды')
 plt.xlabel('время, секунды')
 plt.yscale('log')
 plt.grid()
-plt.savefig('two_axis_gimbal_pid.png')
+# plt.savefig('two_axis_gimbal_pid.png')
 plt.show()

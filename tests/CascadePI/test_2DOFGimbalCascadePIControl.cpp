@@ -53,14 +53,19 @@ protected:
     // System params
     State state{0, 0, 0, 0, 0.5, 0.5, 0, 0};
 
-    const DirectFormParams params{
+    std::mt19937 randomEngine;
+
+    DirectFormParams params{
             .J1_ = 5.72 * 1e1,
             .J2_ = 5.79 * 1e1,
             .J3_ = 7.04 * 1e1,
             .J4_ = 6.22 * 1e1,
             .Kg_ = 0.1, .Fs_ = 0.1,
             .gConstDiag_ = Matrix2d{{1, 0},
-                                    {0, 1}}};
+                                    {0, 1}},
+            .disturbanceSigma_ = Matrix2d{{0.0, 0},
+                                          {0,   0.0}},
+            .randomEngine_ = randomEngine};
 };
 
 TEST_F(ControlTwoAxisGimbalCascadePIData, TEST1) {
@@ -89,5 +94,33 @@ TEST_F(ControlTwoAxisGimbalCascadePIData, TEST1) {
         file << t << "\n";
     }
     file.close();
+}
 
+TEST_F(ControlTwoAxisGimbalCascadePIData, TEST_DIST) {
+    std::fstream file;
+    file.open(PROJECT_DIR + "/tests/CascadePI/data/TwoAxisGimbalCascadePIdist.txt", std::ios::out);
+
+    PID positionController1(positionKp1, positionKi1, 0);
+    PID rateController1(rateKp1, rateKi1, 0);
+
+    PID positionController2(positionKp2, positionKi2, 0);
+    PID rateController2(rateKp2, rateKi2, 0);
+    params.disturbanceSigma_ = Matrix2d{{0.5, 0}, {0, 0.5}};
+
+    file << std::setprecision(10) << state.transpose() << " " << timeStartModeling << "\n";
+
+    ComputeRHS::GimbalCascadePI::TwoDOFGimbalRHS rhs(state, positionController1, rateController1, positionController2,
+                                                     rateController2, params, integrationStep);
+
+    std::vector<State> x_vec;
+    std::vector<double> times;
+
+    boost::numeric::odeint::runge_kutta4<State> stepper;
+
+    for (double t = timeStartModeling; t < timeEndModeling; t += integrationStep) {
+        stepper.do_step(rhs, state, t, integrationStep);
+        file << state.transpose() << " ";
+        file << t << "\n";
+    }
+    file.close();
 }
