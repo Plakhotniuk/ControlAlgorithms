@@ -21,17 +21,17 @@ class PidData : public ::tests::TwoDOFGimbal::ControlTwoAxisGimbalData, public :
 protected:
 
     //Control params
-    const double kP1 = 4500;
+    const double kP1 = 2000;
     const double kI1 = 0;
-    const double kD1 = 5000;
+    const double kD1 = 2500;
 
-    const double kP2 = 4500;
+    const double kP2 = 2000;
     const double kI2 = 0;
-    const double kD2 = 5000;
+    const double kD2 = 2500;
 };
 
 TEST_F(PidData, TEST1) {
-    file.open(PROJECT_DIR + "/tests/TwoDOFGimbal/PID/data/TwoAxisGimbalPID.txt", std::ios::out);
+    file.open(PROJECT_DIR + "/tests/TwoDOFGimbal/PD/data/TwoAxisGimbalPD.txt", std::ios::out);
 
     PID controller1(kP1, kI1, kD1, maxControlValue);
     PID controller2(kP2, kI2, kD2, maxControlValue);
@@ -54,27 +54,27 @@ TEST_F(PidData, TEST_TUNING) {
 
     const double kp1 = 4500;
     const double ki1 = 0;
-    const double kd1 = 5000;
+    const double kd1 = 2000;
 
     const double kp2 = 4500;
     const double ki2 = 0;
-    const double kd2 = 5000;
+    const double kd2 = 2000;
 
     PID controller1(kp1, ki1, kd1, maxControlValue);
     PID controller2(kp2, ki2, kd2, maxControlValue);
     ComputeRHS::GimbalPID::TwoDOFGimbalRHS rhs(state, controller1, controller2, params, integrationStep, desiredTraj);
 
-    std::vector<State> x_vec;
-    std::vector<double> times;
-
     boost::numeric::odeint::runge_kutta4<State> stepper;
 
     double stateError = 0;
+    Vector4d desiredState = desiredTraj.getState(timeStartModeling);
 
     for (double t = timeStartModeling; t < timeEndModeling; t += integrationStep) {
         stepper.do_step(rhs, state, t, integrationStep);
+        desiredState = desiredTraj.getState(t);
         stateError += std::sqrt(
-                (state(0) - state(4)) * (state(0) - state(4)) + (state(1) - state(5)) * (state(1) - state(5)));
+                (state(0) - desiredState(0)) * (state(0) - desiredState(0)) +
+                (state(1) - desiredState(1)) * (state(1) - desiredState(1)));
     }
 
     std::cout << stateError << std::endl;

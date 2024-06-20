@@ -1,8 +1,8 @@
 from tests.TwoDOFGimbal.plot_template import plot_error
 
-input_filename = '../data/TwoAxisGimbalSMCdist.txt'
+input_filename = '../data/TwoAxisGimbalSMC.txt'
 controller_name = 'Скользяший режим управления.'
-output_filename = 'TwoAxisGimbalSMCdistErr.png'
+output_filename = 'TwoAxisGimbalSMCerrorstep.png'
 
 plot_error(input_filename, controller_name, output_filename)
 

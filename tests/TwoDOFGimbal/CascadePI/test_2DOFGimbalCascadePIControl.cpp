@@ -24,22 +24,23 @@ protected:
     // Параметры контроллеров
     // Каскадное включение двух ПИ регуляторов
     // внутренний (inner) Position control
-    const double positionKp1 = 8.0;
-    const double positionKi1 = 0.1;
+    const double positionKp1 = 10.0;
+    const double positionKi1 = 0.5;
     // внешний (outer) Rate control
-    const double rateKp1 = 750.;
-    const double rateKi1 = 50.;
+    const double rateKp1 = 1000.;
+    const double rateKi1 = 100.;
 
     /// Внешний кардан
     // Параметры контроллеров
     // Каскадное включение двух ПИ регуляторов
     // внутренний (inner) Position control
-    const double positionKp2 = 5.0;
-    const double positionKi2 = 0.05;
+    const double positionKp2 = 15;
+    const double positionKi2 = 1;
 
     // внешний (outer) Rate control
-    const double rateKp2 = 300.;
-    const double rateKi2 = 150.;
+    const double rateKp2 = 1000.;
+    const double rateKi2 = 100.;
+
 };
 
 TEST_F(CascadePIData, TEST1) {

@@ -40,8 +40,8 @@ namespace tests::TwoDOFGimbal {
                                               {0,   1}},
                 .randomEngine_ = randomEngine};
 
-        ComputeRHS::Trajectory desiredTraj{.omega_ = 2., .a1_ = 0.5, .a2_ = -0.5, .b1_ = 0.05, .b2_ = -0.05};
-
+//        ComputeRHS::Trajectory desiredTraj{.omega_ = 2., .a1_ = 0.5, .a2_ = -0.5, .b1_ = 0.05, .b2_ = -0.05};
+        ComputeRHS::Trajectory desiredTraj{.omega_ = 0., .a1_ = 0.5, .a2_ = -0.5, .b1_ = 0.0, .b2_ = -0.0};
         const double maxControlValue = 200;
 
     };
