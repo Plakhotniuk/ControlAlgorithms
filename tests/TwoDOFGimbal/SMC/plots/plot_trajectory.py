@@ -5,4 +5,4 @@ input_filename = '../data/TwoAxisGimbalSMC.txt'
 controller_name = 'Скользящий режим управления.'
 output_filename = 'TwoAxisGimbalSMCstep.png'
 
-plot_trajectories(input_filename, controller_name, output_filename)
+plot_trajectories(input_filename, controller_name)
