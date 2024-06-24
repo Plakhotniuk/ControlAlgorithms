@@ -44,7 +44,7 @@ protected:
 };
 
 TEST_F(CascadePIData, TEST1) {
-    file.open(PROJECT_DIR + "/tests/TwoDOFGimbal/CascadePI/data/TwoAxisGimbalCascadePI.txt", std::ios::out);
+    file.open(PROJECT_DIR + "/tests/TwoDOFGimbal/CascadePI/data/TwoAxisGimbalCascadePIdynamic.txt", std::ios::out);
 
     PID positionController1(positionKp1, positionKi1, 0, maxControlValue);
     PID rateController1(rateKp1, rateKi1, 0, maxControlValue);
@@ -63,5 +63,45 @@ TEST_F(CascadePIData, TEST1) {
         stepper.do_step(rhs, state, t, integrationStep);
         tests::Utils::fileDrop(file, state, desiredTraj, t);
     }
+    file.close();
+}
+
+TEST_F(CascadePIData, TEST_STATIC_ADD_NOISE) {
+
+    file.open(PROJECT_DIR + "/tests/TwoDOFGimbal/CascadePI/data/TwoAxisGimbalCascadePINoiseMetrics.txt", std::ios::out);
+
+//    tests::Utils::fileDrop(file, state, desiredTraj, timeStartModeling);
+    const double maxSigma = 1000;
+    for(double sigma_noise = 0; sigma_noise < maxSigma; sigma_noise+=100){
+        params.disturbanceSigma_ =  Matrix2d{{sigma_noise, 0}, {0, sigma_noise}};
+
+        PID positionController1(positionKp1, positionKi1, 0, maxControlValue);
+        PID rateController1(rateKp1, rateKi1, 0, maxControlValue);
+
+        PID positionController2(positionKp2, positionKi2, 0, maxControlValue);
+        PID rateController2(rateKp2, rateKi2, 0, maxControlValue);
+
+        state = {0, 0, 0, 0};
+
+        ComputeRHS::GimbalCascadePI::TwoDOFGimbalRHS rhs(state, positionController1, rateController1, positionController2,
+                                                         rateController2, params, integrationStep, desiredTraj);
+
+        boost::numeric::odeint::runge_kutta4<State> stepper;
+        double ise = 0;
+        double iae = 0;
+        double itae = 0;
+        double error = 0;
+
+        for (double t = timeStartModeling; t < timeEndModeling; t += integrationStep) {
+            stepper.do_step(rhs, state, t, integrationStep);
+            error = (state.segment<2>(0) - desiredTraj.getPosition(t)).norm();
+            ise += error * error * integrationStep;
+            iae += error * integrationStep;
+            itae += t * error * integrationStep;
+//        tests::Utils::fileDrop(file, state, desiredTraj, t);
+        }
+        file << std::setprecision(10) << sigma_noise <<" "<< ise << " " << iae << " " << itae << "\n";
+    }
+
     file.close();
 }

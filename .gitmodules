@@ -4,3 +4,6 @@
 [submodule "third_party/eigen"]
 	path = third_party/eigen
 	url = https://gitlab.com/libeigen/eigen.git
+[submodule "third_party/transfer_function"]
+	path = third_party/transfer_function
+	url = https://github.com/borodziejciesla/transfer_function.git

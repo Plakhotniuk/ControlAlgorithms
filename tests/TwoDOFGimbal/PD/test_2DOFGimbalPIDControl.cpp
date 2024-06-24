@@ -31,7 +31,7 @@ protected:
 };
 
 TEST_F(PidData, TEST1) {
-    file.open(PROJECT_DIR + "/tests/TwoDOFGimbal/PD/data/TwoAxisGimbalPD.txt", std::ios::out);
+    file.open(PROJECT_DIR + "/tests/TwoDOFGimbal/PD/data/TwoAxisGimbalPDdynamic.txt", std::ios::out);
 
     PID controller1(kP1, kI1, kD1, maxControlValue);
     PID controller2(kP2, kI2, kD2, maxControlValue);
@@ -48,6 +48,42 @@ TEST_F(PidData, TEST1) {
     }
     file.close();
 
+}
+
+TEST_F(PidData, TEST_STATIC_ADD_NOISE) {
+
+    file.open(PROJECT_DIR + "/tests/TwoDOFGimbal/PD/data/TwoAxisGimbalPDNoiseMetrics.txt", std::ios::out);
+
+//    tests::Utils::fileDrop(file, state, desiredTraj, timeStartModeling);
+    const double maxSigma = 1000;
+    for(double sigma_noise = 0; sigma_noise < maxSigma; sigma_noise+=100){
+        params.disturbanceSigma_ =  Matrix2d{{sigma_noise, 0}, {0, sigma_noise}};
+
+        PID controller1(kP1, kI1, kD1, maxControlValue);
+        PID controller2(kP2, kI2, kD2, maxControlValue);
+
+        state = {0, 0, 0, 0};
+
+        ComputeRHS::GimbalPID::TwoDOFGimbalRHS rhs(state, controller1, controller2, params, integrationStep, desiredTraj);
+
+        boost::numeric::odeint::runge_kutta4<State> stepper;
+        double ise = 0;
+        double iae = 0;
+        double itae = 0;
+        double error = 0;
+
+        for (double t = timeStartModeling; t < timeEndModeling; t += integrationStep) {
+            stepper.do_step(rhs, state, t, integrationStep);
+            error = (state.segment<2>(0) - desiredTraj.getPosition(t)).norm();
+            ise += error * error * integrationStep;
+            iae += error * integrationStep;
+            itae += t * error * integrationStep;
+//        tests::Utils::fileDrop(file, state, desiredTraj, t);
+        }
+        file << std::setprecision(10) << sigma_noise <<" "<< ise << " " << iae << " " << itae << "\n";
+    }
+
+    file.close();
 }
 
 TEST_F(PidData, TEST_TUNING) {

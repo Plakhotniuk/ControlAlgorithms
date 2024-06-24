@@ -27,12 +27,13 @@ namespace ControlAlgorithms::ComputeRHS::GimbalCascadePI {
                         const Controllers::PID &rateController2,
                         const ControlObjects::TwoDOFGimbal::DirectFormParams &params,
                         const double timeStep, const Trajectory trajectory) : state_(state),
-                                                 positionController1_(positionController1),
-                                                 rateController1_(rateController1),
-                                                 positionController2_(positionController2),
-                                                 rateController2_(rateController2),
-                                                 params_(params),
-                                                 timeStep_(timeStep), desiredTrajectory_(trajectory) {};
+                                                                              positionController1_(positionController1),
+                                                                              rateController1_(rateController1),
+                                                                              positionController2_(positionController2),
+                                                                              rateController2_(rateController2),
+                                                                              params_(params),
+                                                                              timeStep_(timeStep),
+                                                                              desiredTrajectory_(trajectory) {};
 
         void operator()(const ControlObjects::TwoDOFGimbal::State &currentState, ControlObjects::TwoDOFGimbal::State &dxdt,
                         const double t) {
@@ -45,8 +46,13 @@ namespace ControlAlgorithms::ComputeRHS::GimbalCascadePI {
             positionController2_.computeControl(trackingPositionError(1), timeStep_);
             rateController2_.computeControl(positionController2_.getControl() - currentState(3), timeStep_);
 
+            const Vector2d disturbanceVector = Random::getVectorNoise<double, 2>(params_.randomEngine_,
+                                                                                 params_.disturbanceSigma_);
+
+
             dxdt = ControlObjects::TwoDOFGimbal::computeDynamics(currentState,
-                                                                 {rateController1_.getControl(), rateController2_.getControl()},
+                                                                 Vector2d{rateController1_.getControl(),
+                                                                  rateController2_.getControl()} + disturbanceVector,
                                                                  params_);
             state_ = currentState;
         }

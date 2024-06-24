@@ -63,5 +63,25 @@ namespace ControlAlgorithms::Random {
         return noiseVector;
     }
 
+
+    template<typename Scalar>
+    struct RandomRange {
+        RandomRange(const Scalar& low, const Scalar& high,
+                    std::default_random_engine &gen) : dis(low, high), gen(gen) {}
+        const Scalar operator()() const { return dis(gen); }
+        mutable std::uniform_int_distribution<> dis;
+        std::default_random_engine &gen;
+    };
+
+    template<unsigned Size>
+    VectorNd<Size> getRandomVector(const double low, const double high, std::default_random_engine &gen){
+        VectorNd<Size> vec;
+        RandomRange<double> randomRange(low, high, gen);
+        for(unsigned i = 0; i < Size; ++i){
+            vec(i) = randomRange();
+        }
+        return vec;
+    }
+
 }  // namespace LaserP::RandomDistribution
 

@@ -1,8 +1,8 @@
 from tests.TwoDOFGimbal.plot_template import plot_trajectories
 
 
-input_filename = '../data/TwoAxisGimbalSMC.txt'
+input_filename = '../data/TwoAxisGimbalSMCdynamic.txt'
 controller_name = 'Скользящий режим управления.'
-output_filename = 'TwoAxisGimbalSMCstep.png'
+output_filename = 'TwoAxisGimbalSMCtrajDynamic.png'
 
-plot_trajectories(input_filename, controller_name)
+plot_trajectories(input_filename, 0, output_filename)

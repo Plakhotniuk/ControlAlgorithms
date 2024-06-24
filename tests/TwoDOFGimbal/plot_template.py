@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_trajectories(input_filepath, controller_name, output_filename=0):
+def plot_trajectories(input_filepath, controller_name=0, output_filename=0):
     figure, axis = plt.subplots(2, 1)
     data = np.loadtxt(input_filepath)
 
@@ -16,7 +16,8 @@ def plot_trajectories(input_filepath, controller_name, output_filename=0):
     position_des2 = data[:, 5]
 
     times = data[:, 8]
-    axis[0].title.set_text(f'Зависимость углов от времени.\n {controller_name}')
+    if controller_name:
+        axis[0].title.set_text(f'Зависимость углов от времени.\n {controller_name}')
     axis[0].plot(times, position1, label=r'Текущий угол 1')
     axis[0].plot(times, position_des1, 'r-', label=f'Целевой угол 1')
 
@@ -35,7 +36,7 @@ def plot_trajectories(input_filepath, controller_name, output_filename=0):
     plt.show()
 
 
-def plot_error(input_filepath, controller_name, output_filename=0):
+def plot_error(input_filepath, controller_name=0, output_filename=0):
     data = np.loadtxt(input_filepath)
 
     position = np.sqrt(data[:, 0]**2 + data[:, 1]**2)
@@ -45,8 +46,8 @@ def plot_error(input_filepath, controller_name, output_filename=0):
     times = data[:, 8]
 
     plt.plot(times, rad_to_ang_sec(np.abs(position - position_des)))
-
-    plt.title(f'Зависимость ошибки от времени.\n {controller_name}')
+    if controller_name:
+        plt.title(f'Зависимость ошибки от времени.\n {controller_name}')
     plt.ylabel('угол, угловые секунды')
     plt.xlabel('время, секунды')
     plt.yscale('log')

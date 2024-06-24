@@ -31,8 +31,9 @@ namespace ControlAlgorithms::Controllers {
                                                    const Vector2d &trackingVelocityError) {
         Vector2d S = createSwitchingFunction(trackingPositionError, trackingVelocityError);
         assert(reachingConditionCheck(S, KMatrix_));
-        chatteringAvoidance(S, phi_);
-        const Vector2d signS = S.unaryExpr([](const double &x)-> double{return MathFunc::sgn<double>(x);});
+
+        Vector2d signS = S.unaryExpr([](const double &x)-> double{return MathFunc::sgn<double>(x);});
+        chatteringAvoidance(signS, phi_);
 
         controlAction_ += gConstDiagInv * (-prevAcceleration + currentDesiredAcceleration -
                                            lambdaMatrix_ * trackingVelocityError - KMatrix_ * signS);

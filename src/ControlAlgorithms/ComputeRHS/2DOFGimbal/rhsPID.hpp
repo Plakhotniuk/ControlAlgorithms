@@ -23,10 +23,11 @@ namespace ControlAlgorithms::ComputeRHS::GimbalPID {
                         const Controllers::PID &controller2,
                         const ControlObjects::TwoDOFGimbal::DirectFormParams &params,
                         const double timeStep, const Trajectory &trajectory) : state_(state),
-                                                 controller1_(controller1),
-                                                 controller2_(controller2),
-                                                 params_(params),
-                                                 timeStep_(timeStep), trajectory_(trajectory) {};
+                                                                               controller1_(controller1),
+                                                                               controller2_(controller2),
+                                                                               params_(params),
+                                                                               timeStep_(timeStep),
+                                                                               trajectory_(trajectory) {};
 
         void operator()(const ControlObjects::TwoDOFGimbal::State &currentState, ControlObjects::TwoDOFGimbal::State &dxdt,
                         const double t) {
@@ -35,8 +36,12 @@ namespace ControlAlgorithms::ComputeRHS::GimbalPID {
             controller1_.computeControl(trackingPositionError(0), timeStep_);
             controller2_.computeControl(trackingPositionError(1), timeStep_);
 
+            const Vector2d disturbanceVector = Random::getVectorNoise<double, 2>(params_.randomEngine_,
+                                                                                 params_.disturbanceSigma_);
+
             dxdt = ControlObjects::TwoDOFGimbal::computeDynamics(currentState,
-                                                                 {controller1_.getControl(), controller2_.getControl()},
+                                                                 Vector2d{controller1_.getControl(),
+                                                                          controller2_.getControl()} + disturbanceVector,
                                                                  params_);
             state_ = currentState;
         }

@@ -45,10 +45,12 @@ namespace ControlAlgorithms::ControlObjects::TwoDOFGimbal {
          */
         const Vector2d x1Dot = stateVector.segment<2>(2); //!< angular velocities
         const Matrix2d g = M.inverse(); //!< the control matrix
-        const Vector2d disturbanceVector = Random::getVectorNoise<double, 2>(params.randomEngine_, params.disturbanceSigma_);
+        const Vector2d disturbanceVector = {0, 0};
+//        const Vector2d disturbanceVector = Random::getRandomVector<2>(-params.disturbanceSigma_(0, 0), params.disturbanceSigma_(0, 0), params.randomEngine_);
         const Vector2d f = g * (-C * stateVector.segment<2>(2) - G - F - disturbanceVector); //!< nonlinear dynamics vector
         const Vector2d h = f + (g - params.getConstDiagMatrixG()) * controlAction;
         const Vector2d x2Dot = h + params.getConstDiagMatrixG() * controlAction;
+//        std::cout << controlAction.norm() << " " << disturbanceVector.norm() << std::endl;
         return {x1Dot(0), x1Dot(1), x2Dot(0), x2Dot(1)};
     }
 }

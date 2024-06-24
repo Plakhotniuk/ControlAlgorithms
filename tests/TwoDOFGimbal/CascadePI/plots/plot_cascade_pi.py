@@ -1,7 +1,7 @@
 from tests.TwoDOFGimbal.plot_template import plot_error
 
-input_filename = '../data/TwoAxisGimbalCascadePI.txt'
+input_filename = '../data/TwoAxisGimbalCascadePIdynamic.txt'
 controller_name = 'Каскадный ПИ регулятор.'
-output_filename = 'TwoAxisGimbalCascadePIerrstep.png'
+output_filename = 'TwoAxisGimbalCascadePIerrDynamic.png'
 
-plot_error(input_filename, controller_name)
+plot_error(input_filename, 0, output_filename)
