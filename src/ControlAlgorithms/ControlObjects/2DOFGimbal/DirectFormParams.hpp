@@ -39,7 +39,7 @@ namespace ControlAlgorithms::ControlObjects::TwoDOFGimbal {
         double Kg_;//!< (weight of gimbal) x (distance from center of mass to the axis of rotation)
         double Fs_;//!< friction force constant
         Matrix2d gConstDiag_;
-        Matrix2d disturbanceSigma_;
+        Matrix4d disturbanceSigma_;
         std::mt19937 &randomEngine_;
 
         /** Calculate gimbal moment of inertia matrix M

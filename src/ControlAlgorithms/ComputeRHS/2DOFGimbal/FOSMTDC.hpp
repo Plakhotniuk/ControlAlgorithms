@@ -44,9 +44,9 @@ namespace ControlAlgorithms::ComputeRHS::GimbalFOSMTDC {
             controller_.computeControl(params_.gConstDiag_.inverse(), prevAcceleration,
                                        currentDesiredAcceleration, trackingPositionError, trackingVelocityError);
 
-            const Vector2d disturbanceVector = Random::getVectorNoise<double, 2>(params_.randomEngine_, params_.disturbanceSigma_);
+//            const Vector4d disturbanceVector = Random::getVectorNoise<double, 4>(params_.randomEngine_, params_.disturbanceSigma_);
 
-            dxdt = ControlObjects::TwoDOFGimbal::computeDynamics(currentState, controller_.getControl() + disturbanceVector, params_);
+            dxdt = ControlObjects::TwoDOFGimbal::computeDynamics(currentState, controller_.getControl(), params_);
             state_ = currentState;
         }
     };

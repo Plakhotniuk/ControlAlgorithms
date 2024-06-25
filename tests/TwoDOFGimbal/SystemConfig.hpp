@@ -36,12 +36,12 @@ namespace tests::TwoDOFGimbal {
                 .Kg_ = 0.1, .Fs_ = 0.1,
                 .gConstDiag_ = Matrix2d{{1, 0},
                                         {0, 1}},
-                .disturbanceSigma_ = Matrix2d{{0, 0},
-                                              {0,   0}},
+                .disturbanceSigma_ = Matrix4d::Zero(),
                 .randomEngine_ = randomEngine};
 
-        ComputeRHS::Trajectory desiredTraj{.omega_ = 2., .a1_ = 1, .a2_ = -1, .b1_ = 0.05, .b2_ = -0.05};
-//        ComputeRHS::Trajectory desiredTraj{.omega_ = 0., .a1_ = 0.5, .a2_ = -0.5, .b1_ = 0.0, .b2_ = -0.0};
+//        ComputeRHS::Trajectory desiredTraj{.omega_ = 0.005, .a1_ = 1, .a2_ = -1, .b1_ = 1, .b2_ = -1};
+        ComputeRHS::Trajectory desiredTraj{.omega_ = 0., .a1_ = 0.5, .a2_ = -0.5, .b1_ = 0.0, .b2_ = -0.0};
+
 
 
     };

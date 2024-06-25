@@ -44,7 +44,7 @@ protected:
 };
 
 TEST_F(CascadePIData, TEST1) {
-    file.open(PROJECT_DIR + "/tests/TwoDOFGimbal/CascadePI/data/TwoAxisGimbalCascadePIdynamic.txt", std::ios::out);
+    file.open(PROJECT_DIR + "/tests/TwoDOFGimbal/CascadePI/data/TwoAxisGimbalCascadePIRealDynamics.txt", std::ios::out);
 
     PID positionController1(positionKp1, positionKi1, 0, maxControlValue);
     PID rateController1(rateKp1, rateKi1, 0, maxControlValue);
@@ -71,9 +71,10 @@ TEST_F(CascadePIData, TEST_STATIC_ADD_NOISE) {
     file.open(PROJECT_DIR + "/tests/TwoDOFGimbal/CascadePI/data/TwoAxisGimbalCascadePINoiseMetrics.txt", std::ios::out);
 
 //    tests::Utils::fileDrop(file, state, desiredTraj, timeStartModeling);
-    const double maxSigma = 1000;
-    for(double sigma_noise = 0; sigma_noise < maxSigma; sigma_noise+=100){
-        params.disturbanceSigma_ =  Matrix2d{{sigma_noise, 0}, {0, sigma_noise}};
+    const double ang_sec = 0.000005;
+    const double maxSigma = ang_sec * 20;
+    for(double sigma_noise = 0; sigma_noise < maxSigma; sigma_noise+=0.5*ang_sec){
+        params.disturbanceSigma_ =  Matrix4d::Identity() * sigma_noise;
 
         PID positionController1(positionKp1, positionKi1, 0, maxControlValue);
         PID rateController1(rateKp1, rateKi1, 0, maxControlValue);
@@ -98,7 +99,9 @@ TEST_F(CascadePIData, TEST_STATIC_ADD_NOISE) {
             ise += error * error * integrationStep;
             iae += error * integrationStep;
             itae += t * error * integrationStep;
-//        tests::Utils::fileDrop(file, state, desiredTraj, t);
+            Vector4d disturbanceVector = Random::getVectorNoise<double, 4>(params.randomEngine_,
+                                                                           params.disturbanceSigma_);
+            state += disturbanceVector;
         }
         file << std::setprecision(10) << sigma_noise <<" "<< ise << " " << iae << " " << itae << "\n";
     }

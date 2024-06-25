@@ -12,6 +12,8 @@ namespace ControlAlgorithms {
 
     using Matrix3d = Eigen::Matrix<double, 3, 3>;// Матрица размера 3 на 3 с типом double
 
+    using Matrix4d = Eigen::Matrix<double, 4, 4>;// Матрица размера 4 на 4 с типом double
+
     template<unsigned N>
     using MatrixNd = Eigen::Matrix<double, N, N>;// Матрица размера N на N с типом double
 

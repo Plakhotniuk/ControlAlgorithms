@@ -46,13 +46,11 @@ namespace ControlAlgorithms::ComputeRHS::GimbalCascadePI {
             positionController2_.computeControl(trackingPositionError(1), timeStep_);
             rateController2_.computeControl(positionController2_.getControl() - currentState(3), timeStep_);
 
-            const Vector2d disturbanceVector = Random::getVectorNoise<double, 2>(params_.randomEngine_,
-                                                                                 params_.disturbanceSigma_);
 
 
             dxdt = ControlObjects::TwoDOFGimbal::computeDynamics(currentState,
                                                                  Vector2d{rateController1_.getControl(),
-                                                                  rateController2_.getControl()} + disturbanceVector,
+                                                                  rateController2_.getControl()},
                                                                  params_);
             state_ = currentState;
         }

@@ -31,7 +31,7 @@ protected:
 };
 
 TEST_F(PidData, TEST1) {
-    file.open(PROJECT_DIR + "/tests/TwoDOFGimbal/PD/data/TwoAxisGimbalPDdynamic.txt", std::ios::out);
+    file.open(PROJECT_DIR + "/tests/TwoDOFGimbal/PD/data/TwoAxisGimbalPDRealDynamics.txt", std::ios::out);
 
     PID controller1(kP1, kI1, kD1, maxControlValue);
     PID controller2(kP2, kI2, kD2, maxControlValue);
@@ -55,9 +55,10 @@ TEST_F(PidData, TEST_STATIC_ADD_NOISE) {
     file.open(PROJECT_DIR + "/tests/TwoDOFGimbal/PD/data/TwoAxisGimbalPDNoiseMetrics.txt", std::ios::out);
 
 //    tests::Utils::fileDrop(file, state, desiredTraj, timeStartModeling);
-    const double maxSigma = 1000;
-    for(double sigma_noise = 0; sigma_noise < maxSigma; sigma_noise+=100){
-        params.disturbanceSigma_ =  Matrix2d{{sigma_noise, 0}, {0, sigma_noise}};
+    const double ang_sec = 0.000005;
+    const double maxSigma = ang_sec * 20;
+    for(double sigma_noise = 0; sigma_noise < maxSigma; sigma_noise+=0.5*ang_sec){
+        params.disturbanceSigma_ =  Matrix4d::Identity() * sigma_noise;
 
         PID controller1(kP1, kI1, kD1, maxControlValue);
         PID controller2(kP2, kI2, kD2, maxControlValue);
@@ -71,6 +72,7 @@ TEST_F(PidData, TEST_STATIC_ADD_NOISE) {
         double iae = 0;
         double itae = 0;
         double error = 0;
+        Vector2d disturbanceVector;
 
         for (double t = timeStartModeling; t < timeEndModeling; t += integrationStep) {
             stepper.do_step(rhs, state, t, integrationStep);
@@ -78,7 +80,9 @@ TEST_F(PidData, TEST_STATIC_ADD_NOISE) {
             ise += error * error * integrationStep;
             iae += error * integrationStep;
             itae += t * error * integrationStep;
-//        tests::Utils::fileDrop(file, state, desiredTraj, t);
+            Vector4d disturbanceVector = Random::getVectorNoise<double, 4>(params.randomEngine_,
+                                                                           params.disturbanceSigma_);
+            state += disturbanceVector;
         }
         file << std::setprecision(10) << sigma_noise <<" "<< ise << " " << iae << " " << itae << "\n";
     }

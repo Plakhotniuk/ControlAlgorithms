@@ -36,12 +36,9 @@ namespace ControlAlgorithms::ComputeRHS::GimbalPID {
             controller1_.computeControl(trackingPositionError(0), timeStep_);
             controller2_.computeControl(trackingPositionError(1), timeStep_);
 
-            const Vector2d disturbanceVector = Random::getVectorNoise<double, 2>(params_.randomEngine_,
-                                                                                 params_.disturbanceSigma_);
-
             dxdt = ControlObjects::TwoDOFGimbal::computeDynamics(currentState,
                                                                  Vector2d{controller1_.getControl(),
-                                                                          controller2_.getControl()} + disturbanceVector,
+                                                                          controller2_.getControl()},
                                                                  params_);
             state_ = currentState;
         }
